@@ -44,7 +44,7 @@ Make sure your main.py has a main() function that parses command-line args.
 
 ## Folder Structure
 
-<pre> ```text
+<pre>
 sss_pipeline/
 ├── side_scan_sonar_pipeline/
 │   ├── __init__.py
@@ -56,4 +56,4 @@ sss_pipeline/
 ├── requirements.txt
 ├── setup.py
 └── .gitignore
-``` </pre>
+</pre>
