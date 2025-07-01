@@ -1,0 +1,36 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Data and logs
+*.csv
+*.log
+*.out
+*.npy
+*.npz
+*.h5
+*.pkl
+*.jpg
+*.png
+*.bmp
+
+# OS-specific
+.DS_Store
+Thumbs.db

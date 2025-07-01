@@ -1,0 +1,37 @@
+# Flags
+NED_localizer_flag: True # This step takes a long time, so do it once and then set to False
+
+
+# Paths (modify according to your directory structure)
+input_data_path: "MELORIA_DATASET/navstatus_and_sss.csv"
+
+output_tvg_folder: "MELORIA_SSS_OUTPUT/tvg"
+
+output_waterfall_folder: "MELORIA_SSS_OUTPUT/waterfall"
+
+output_localized_measures_folder: "MELORIA_SSS_OUTPUT/localized_measures"
+
+output_raw_mosaics_folder: "MELORIA_SSS_OUTPUT/raw_mosaics"
+
+output_filled_rect_mosaics_folder: "MELORIA_SSS_OUTPUT/filled_rect_mosaics"
+
+output_clean_mosaics_folder: "MELORIA_SSS_OUTPUT/clean_mosaics"
+
+# data_cleaning
+min_altitude: 0.5 # [meters] minimum altitude for data cleaning
+
+# SSS_parameters
+bin_per_swathe: 1000 # [] number of beams per swathe
+mounting_angle: 0.489 # [radians] mounting angle of the SSS
+beam_aperture: 1.047 # [radians] beam aperture of the SSS
+slant_range: 25 # [meters] slant range of the SSS
+
+# Cropping parameters
+far_field_percentage: 0.35 # [0-1] percentage of the swathe to crop out
+
+# Transect Assignment
+transect_angle_threshold: 0.2 # [radians] angle threshold for transect assignment
+minimum_instances_per_transect: 100 # minimum number of instances per transect
+
+# Mosaic Parameters
+padding_meters: 1 # [meters] padding around the mosaic
