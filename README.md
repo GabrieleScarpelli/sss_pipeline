@@ -37,6 +37,9 @@ Several types of outputs are generated during the pipeline execution:
 - **Clean Mosaics for Convolution**:  
   Filled mosaics are rotated and cropped to produce square, convolution-ready images. These are stored in `output_clean_mosaics_folder`.
 
+- **CLAHE Mosaics for Convolution**:  
+  The convolution-ready mosaics are filtered with CLAHE algorithm to enhance contrast. These are stored in `output_clahe_mosaics_folder`.
+
 
 ## Requirements
 

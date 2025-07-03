@@ -536,6 +536,12 @@ class SideScanSonarPipeline:
         os.makedirs(output_filled_rect_folder_path, exist_ok=True)
         self.logger.info("Creating folder for filled rectangle mosaics at {}".format(output_filled_rect_folder_path))
 
+        output_clahe_folder_path = self.config.get('output_clahe_mosaics_folder')
+        if not output_clahe_folder_path:
+            raise ValueError("Output CLAHE mosaic folder path must be specified in the configuration file.")
+        os.makedirs(output_clahe_folder_path, exist_ok=True)
+        self.logger.info("Creating folder for CLAHE mosaics at {}".format(output_clahe_folder_path))
+
         # Iterate over transect folders in localized measures folder
         localized_measures_folder = self.config.get('output_localized_measures_folder')
         if not localized_measures_folder:
@@ -684,8 +690,16 @@ class SideScanSonarPipeline:
             cv2.imwrite(os.path.join(output_cleaned_folder_path, f"transect_{transect}_right_cropped.png"), cropped_right)
             cv2.imwrite(os.path.join(output_cleaned_folder_path, f"transect_{transect}_left_cropped.png"), cropped_left)
 
+            # Apply CLAHE to the mosaics
 
+            clahe = cv2.createCLAHE(clipLimit=self.config.get('clahe_clip_limit'), tileGridSize=tuple(self.config.get('clahe_tile_grid_size')))
 
+            right_mosaic_clahe = clahe.apply(cv2.cvtColor(cropped_right, cv2.COLOR_BGRA2GRAY))
+            left_mosaic_clahe = clahe.apply(cv2.cvtColor(cropped_left, cv2.COLOR_BGRA2GRAY))
+
+            # Save the CLAHE mosaics
+            cv2.imwrite(os.path.join(output_clahe_folder_path, f"transect_{transect}_right_clahe.png"), right_mosaic_clahe)
+            cv2.imwrite(os.path.join(output_clahe_folder_path, f"transect_{transect}_left_clahe.png"), left_mosaic_clahe)
 
     def run(self):
         """

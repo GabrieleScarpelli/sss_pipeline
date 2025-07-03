@@ -1,5 +1,5 @@
 # Flags
-NED_localizer_flag: True # This step takes a long time, so do it once and then set to False
+NED_localizer_flag: False # This step takes a long time, so do it once and then set to False
 
 
 # Paths (modify according to your directory structure)
@@ -16,6 +16,8 @@ output_raw_mosaics_folder: "MELORIA_SSS_OUTPUT/raw_mosaics"
 output_filled_rect_mosaics_folder: "MELORIA_SSS_OUTPUT/filled_rect_mosaics"
 
 output_clean_mosaics_folder: "MELORIA_SSS_OUTPUT/clean_mosaics"
+
+output_clahe_mosaics_folder: "MELORIA_SSS_OUTPUT/clahe_mosaics"
 
 # data_cleaning
 min_altitude: 0.5 # [meters] minimum altitude for data cleaning
@@ -35,3 +37,7 @@ minimum_instances_per_transect: 100 # minimum number of instances per transect
 
 # Mosaic Parameters
 padding_meters: 1 # [meters] padding around the mosaic
+
+# Clahe Parameters
+clahe_clip_limit: 2.0 # [] clip limit for CLAHE
+clahe_tile_grid_size: [8, 8] # [] tile grid size for CLAHE
