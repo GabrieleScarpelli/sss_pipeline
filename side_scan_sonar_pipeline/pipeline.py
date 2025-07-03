@@ -469,7 +469,7 @@ class SideScanSonarPipeline:
                     elif temp_sin < np.sin(np.pi - self.theta_s_min + roll):
                         left_df.loc[k, "theta_s"] = None
                     else:
-                        left_df.loc[k, "theta_s"] = np.arcsin(temp_sin) + roll
+                        left_df.loc[k, "theta_s"] = np.pi -np.arcsin(temp_sin) + roll
 
                     # If the beam does not intersect the seafloor, the coordinates are set to None
                     if left_df["theta_s"][k] is None:

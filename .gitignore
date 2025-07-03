@@ -26,8 +26,6 @@ dist/
 *.npz
 *.h5
 *.pkl
-*.jpg
-*.png
 *.bmp
 
 # OS-specific
