@@ -70,7 +70,7 @@ pip install -e .
 Edit the config.yaml file according to your needs and run the command
 
 ```bash
-run-sss-pipeline --config config.yaml
+run-sss-pipeline --config demo_config.yaml
 ```
 Make sure your main.py has a main() function that parses command-line args.
 
