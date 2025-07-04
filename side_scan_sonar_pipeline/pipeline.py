@@ -338,6 +338,93 @@ class SideScanSonarPipeline:
         self.logger.info("Waterfall images generated and saved to {}".format(output_folder_path))
 
 
+    def nav_data_plots(self):
+        """
+        Generate navigation data plots per transect for the processed data.
+        """
+        if self.processed_data is None:
+            raise ValueError("Processed data is not available. Please clean data before generating navigation plots.")
+        
+        # Create the folder in which to store the navigation plots
+        output_folder_path = self.config.get('output_nav_data_plots_folder')
+        if not output_folder_path:
+            raise ValueError("Output navigation plots folder path must be specified in the configuration file.")
+        os.makedirs(output_folder_path, exist_ok=True)
+
+        # Collect mean values for each transect of the navdata to plot
+        # Keep only the columns: 'down', 'roll', 'pitch', 'yaw', 'altitude', 'transect'
+        navdata_means = self.processed_data[['down', 'roll', 'pitch', 'yaw', 'altitude', 'transect']]
+        # Collapse with mean by transects
+        navdata_means = navdata_means.groupby('transect').mean().reset_index()
+
+        # Generate another dataframe in which the columns are expressed as variations from the transect mean
+        navdata_variations = self.processed_data[['down', 'roll', 'pitch', 'yaw', 'altitude', 'transect']]
+        # Iterate through each column and subtract the mean of that column for each transect
+        for column in ['down', 'roll', 'pitch', 'yaw', 'altitude']:
+            for k in range(len(navdata_variations)):
+                transect = navdata_variations['transect'][k]
+                mean_value = navdata_means[navdata_means['transect'] == transect][column].values[0]
+                navdata_variations.at[k, column] = navdata_variations.at[k, column] - mean_value
+
+    
+        # Convert navdata_variations angular data to degrees from radians
+        navdata_variations.loc[:, 'roll'] = np.degrees(navdata_variations['roll'])
+        navdata_variations.loc[:, 'pitch'] = np.degrees(navdata_variations['pitch'])
+        navdata_variations.loc[:, 'yaw'] = np.degrees(navdata_variations['yaw'])
+
+        # Collect minimum and maximum values in general for axis limits
+        min_values = navdata_variations[['down', 'roll', 'pitch', 'yaw', 'altitude']].min()
+        max_values = navdata_variations[['down', 'roll', 'pitch', 'yaw', 'altitude']].max()
+
+        # Generate plots for each transect
+        # For each transect, two images are generated:
+        # 1. Plots of angular data (roll, pitch, yaw)
+        # 2. Plots of down, altitude
+        # Plots are stacked vertically, transparent background, and saved as PNG files
+        for transect in tqdm.tqdm(navdata_means['transect'].unique(), desc="Generating navigation plots"):
+            transect_data = navdata_variations[navdata_variations['transect'] == transect].reset_index(drop=True)
+
+            # Create first figure (angular data)
+            fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+            axs[0].plot(transect_data['roll'], label='Roll', color='blue', linewidth=2)
+            axs[1].plot(transect_data['pitch'], label='Pitch', color='green', linewidth=2)
+            axs[2].plot(transect_data['yaw'], label='Yaw', color='red', linewidth=2)
+            axs[0].set_ylabel('Roll variation (degrees)')
+            axs[1].set_ylabel('Pitch variation (degrees)')
+            axs[2].set_ylabel('Yaw variation (degrees)')
+            axs[2].set_xlabel('Beam')
+            axs[0].set_title('Transect {}: Angular Data Variation'.format(int(transect)))
+            axs[0].set_ylim(min_values['roll'], max_values['roll'])
+            axs[1].set_ylim(min_values['pitch'], max_values['pitch'])
+            axs[2].set_ylim(min_values['yaw'], max_values['yaw'])
+            axs[0].grid()
+            axs[1].grid()
+            axs[2].grid()
+            # Save the figure
+            angular_plot_path = os.path.join(output_folder_path, 'navdata_angular_transect_{}.png'.format(int(transect)))
+            plt.savefig(angular_plot_path, transparent=True)
+            plt.close(fig)
+
+            # Create second figure (down, altitude)
+            fig, axs = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+            axs[0].plot(transect_data['down'], label='Down', color='blue', linewidth=2)
+            axs[1].plot(transect_data['altitude'], label='Altitude', color='green', linewidth=2)
+            axs[0].set_ylabel('Down variation (m)')
+            axs[1].set_ylabel('Altitude variation (m)')
+            axs[1].set_xlabel('Beam')
+            axs[0].set_title('Transect {}: Down and Altitude Data Variation'.format(int(transect)))
+            axs[0].set_ylim(min_values['down'], max_values['down'])
+            axs[1].set_ylim(min_values['altitude'], max_values['altitude'])
+            axs[0].grid()
+            axs[1].grid()
+            # Save the figure
+            down_altitude_plot_path = os.path.join(output_folder_path, 'navdata_down_altitude_transect_{}.png'.format(int(transect)))
+            plt.savefig(down_altitude_plot_path, transparent=True)
+            plt.close(fig)
+
+        self.logger.info("Navigation data plots generated and saved to {}".format(output_folder_path))
+        
+
     def bin_NED_localizer(self):
         """
         For each transect, for each side, for each beam, build a new .csv file 
@@ -371,6 +458,13 @@ class SideScanSonarPipeline:
             transect_data = self.processed_data[self.processed_data['transect'] == transect]
             # Reset the index of the transect data
             transect_data.reset_index(drop=True, inplace=True)
+
+            # Cut out the first and last 30 measures to avoid edge effects
+            if len(transect_data) > 60:
+                transect_data = transect_data.iloc[30:-30].reset_index(drop=True)
+
+            # Apply moving average with a window size of 50 to the altitude column
+            transect_data['altitude'] = transect_data['altitude'].rolling(window=50, min_periods=1).mean()
 
             # Iterate over each measure (instance of the dataframe)
             for j in tqdm.tqdm(range(len(transect_data)), desc="Processing measures for transect {}".format(int(transect))):
@@ -509,7 +603,7 @@ class SideScanSonarPipeline:
                 # Save the dataframes to csv files
                 right_df.to_csv(os.path.join(transect_folder_path, 'transect_{}_measure_{}_right.csv'.format(int(transect), j)), index=False)
                 left_df.to_csv(os.path.join(transect_folder_path, 'transect_{}_measure_{}_left.csv'.format(int(transect), j)), index=False)
-            
+
 
     def generate_mosaics(self):
         """
@@ -701,6 +795,7 @@ class SideScanSonarPipeline:
             cv2.imwrite(os.path.join(output_clahe_folder_path, f"transect_{transect}_right_clahe.png"), right_mosaic_clahe)
             cv2.imwrite(os.path.join(output_clahe_folder_path, f"transect_{transect}_left_clahe.png"), left_mosaic_clahe)
 
+    
     def run(self):
         """
         Run the side scan sonar processing pipeline.
@@ -727,12 +822,16 @@ class SideScanSonarPipeline:
         # Generate waterfall images for the processed data
         self.waterfall_images()
 
+        # Generate navigation data plots per transect for the processed data
+        self.nav_data_plots()
+
         # Localize the bins in NED frame
         if self.config.get('NED_localizer_flag'):
             self.bin_NED_localizer()
-        
+            
         # Generate mosaics images
-        self.generate_mosaics()
+        if self.config.get('mosaic_flag'):
+            self.generate_mosaics()
 
 
 

@@ -1,6 +1,7 @@
 # Flags
 NED_localizer_flag: False # This step takes a long time, so do it once and then set to False
 
+mosaic_flag: True # Set to False if you want to skip the mosaic generation step
 
 # Paths (modify according to your directory structure)
 input_data_path: "MELORIA_DATASET/navstatus_and_sss.csv"
@@ -18,6 +19,8 @@ output_filled_rect_mosaics_folder: "MELORIA_SSS_OUTPUT/filled_rect_mosaics"
 output_clean_mosaics_folder: "MELORIA_SSS_OUTPUT/clean_mosaics"
 
 output_clahe_mosaics_folder: "MELORIA_SSS_OUTPUT/clahe_mosaics"
+
+output_nav_data_plots_folder: "MELORIA_SSS_OUTPUT/nav_data_plots"
 
 # data_cleaning
 min_altitude: 0.5 # [meters] minimum altitude for data cleaning

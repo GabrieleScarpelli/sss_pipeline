@@ -25,6 +25,10 @@ Several types of outputs are generated during the pipeline execution:
 - **Waterfall Images**:  
   Images are created by cropping out nadir and far-field zones, then stacking beams sequentially. Saved to `output_waterfall_folder`.
 
+- **Navdata Plots**:  
+  Plots of navigation data for each transect.
+  Saved to `output_nav_data_plots_folder:`.
+
 - **Localized Measures**:  
   `.csv` files associating sonar bins with their corresponding NED coordinates. These files are stored in `output_localized_measures_folder` to avoid recomputation, as this step is time-consuming.
 

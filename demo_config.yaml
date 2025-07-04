@@ -17,6 +17,10 @@ output_filled_rect_mosaics_folder: "sss_pipeline/demo_output/filled_rect_mosaics
 
 output_clean_mosaics_folder: "sss_pipeline/demo_output/clean_mosaics"
 
+output_clahe_mosaics_folder: "sss_pipeline/demo_output/clahe_mosaics"
+
+output_nav_data_plots_folder: "sss_pipeline/demo_output/nav_data_plots"
+
 # data_cleaning
 min_altitude: 0.5 # [meters] minimum altitude for data cleaning
 
